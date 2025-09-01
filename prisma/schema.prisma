@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  EMPLOYEE
+  MANAGER
+  ADMIN
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+}
+
+enum Department {
+  FACTORY_1
+  FACTORY_2
+  FACTORY_3
+  PRESS
+  WELDING
+  INDIRECT
+}
+
+model User {
+  id             String         @id @default(uuid())
+  employeeId     String         @unique @map("employee_id")
+  email          String?        @unique
+  passwordHash   String         @map("password_hash")
+  firstName      String         @map("first_name")
+  lastName       String         @map("last_name")
+  firstNameKana  String?        @map("first_name_kana")
+  lastNameKana   String?        @map("last_name_kana")
+  department     Department
+  role           Role           @default(EMPLOYEE)
+  employmentType EmploymentType @default(FULL_TIME) @map("employment_type")
+  hireDate       DateTime       @map("hire_date")
+  hourlyRate     Decimal?       @map("hourly_rate") @db.Decimal(10, 2)
+  monthlySalary  Decimal?       @map("monthly_salary") @db.Decimal(10, 2)
+  nfcCardId      String?        @unique @map("nfc_card_id")
+  isActive       Boolean        @default(true) @map("is_active")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  managedDepartments DepartmentManager[]
+  sessions           Session[]
+  timeRecords        TimeRecord[]
+  attendanceDaily    AttendanceDaily[]
+  auditLogs          AuditLog[]
+
+  @@map("users")
+}
+
+model DepartmentManager {
+  id           String     @id @default(uuid())
+  userId       String     @map("user_id")
+  department   Department
+  assignedAt   DateTime   @default(now()) @map("assigned_at")
+  unassignedAt DateTime?  @map("unassigned_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, department])
+  @@map("department_managers")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  token        String   @unique
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  lastActivity DateTime @default(now()) @map("last_activity")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([token])
+  @@map("sessions")
+}
+
+enum RecordType {
+  CLOCK_IN
+  CLOCK_OUT
+  BREAK_START
+  BREAK_END
+  TEMP_OUT
+  TEMP_RETURN
+}
+
+enum DeviceType {
+  WEB
+  MOBILE
+  NFC
+  MANUAL
+}
+
+model TimeRecord {
+  id             String     @id @default(uuid())
+  userId         String     @map("user_id")
+  recordType     RecordType @map("record_type")
+  recordedAt     DateTime   @map("recorded_at")
+  location       String?
+  deviceType     DeviceType @map("device_type")
+  ipAddress      String?    @map("ip_address")
+  isModified     Boolean    @default(false) @map("is_modified")
+  originalTime   DateTime?  @map("original_time")
+  modifiedBy     String?    @map("modified_by")
+  modifiedReason String?    @map("modified_reason")
+  createdAt      DateTime   @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, recordedAt])
+  @@map("time_records")
+}
+
+enum AttendanceStatus {
+  NORMAL
+  LATE
+  EARLY_LEAVE
+  ABSENT
+  HOLIDAY
+  PAID_LEAVE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AttendanceDaily {
+  id                  String           @id @default(uuid())
+  userId              String           @map("user_id")
+  workDate            DateTime         @map("work_date") @db.Date
+  clockIn             DateTime?        @map("clock_in")
+  clockOut            DateTime?        @map("clock_out")
+  breakDuration       Int              @default(0) @map("break_duration") // minutes
+  actualWorkMinutes   Int              @default(0) @map("actual_work_minutes")
+  overtimeMinutes     Int              @default(0) @map("overtime_minutes")
+  lateNightMinutes    Int              @default(0) @map("late_night_minutes")
+  holidayWorkMinutes  Int              @default(0) @map("holiday_work_minutes")
+  status              AttendanceStatus @default(NORMAL)
+  approvalStatus      ApprovalStatus   @default(PENDING) @map("approval_status")
+  approvedBy          String?          @map("approved_by")
+  approvedAt          DateTime?        @map("approved_at")
+  notes               String?
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, workDate])
+  @@index([workDate])
+  @@index([userId])
+  @@map("attendance_daily")
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+}
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  action      AuditAction
+  targetTable String?     @map("target_table")
+  targetId    String?     @map("target_id")
+  oldValue    Json?       @map("old_value")
+  newValue    Json?       @map("new_value")
+  ipAddress   String?     @map("ip_address")
+  userAgent   String?     @map("user_agent")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([targetTable, targetId])
+  @@map("audit_logs")
+}

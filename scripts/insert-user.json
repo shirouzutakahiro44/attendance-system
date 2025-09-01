@@ -1,0 +1,15 @@
+{
+  "id": "test-user-2",
+  "employee_id": "EMP002",
+  "email": "test2@example.com",
+  "password_hash": "$2a$10$dummyhash",
+  "first_name": "二郎",
+  "last_name": "テスト",
+  "first_name_kana": "ジロウ",
+  "last_name_kana": "テスト",
+  "department": "FACTORY_1",
+  "role": "EMPLOYEE",
+  "employment_type": "FULL_TIME",
+  "hire_date": "2024-01-01T00:00:00Z",
+  "is_active": true
+}
