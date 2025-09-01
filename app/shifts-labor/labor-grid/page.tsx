@@ -229,8 +229,8 @@ export default function LaborGridDetailPage() {
             });
           } else {
             // スキルに基づいた適切なタスクを配置
-            const suitableTask = findBestTask(emp, tasks);
-            if (suitableTask) {
+            const suitableTask = findBestTask(emp, tasks) as any;
+            if (suitableTask && suitableTask.id) {
               const skillMatch = calculateSkillMatch(emp, suitableTask);
               const timeEfficiency = emp.efficiencyByTimeOfDay[slot.startTime] || 0.8;
               const fatigueFactor = 1 - emp.currentFatigue;

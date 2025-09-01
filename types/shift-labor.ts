@@ -143,7 +143,7 @@ export interface LaborGridAssignment {
   efficiency: number;
   skillMatch: number;
   isOptimal: boolean;
-  conflicts: AssignmentConflict[];
+  conflicts: any[];
 }
 
 export interface EmployeeAvailability {

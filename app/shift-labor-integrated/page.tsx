@@ -129,7 +129,7 @@ export default function ShiftLaborIntegratedPage() {
       employees.forEach((employee, empIndex) => {
         // 簡易的なシフトパターン生成
         const dayOfWeek = currentDate.getDay();
-        let shift: ShiftAssignment['shift'] = 'early';
+        let shift: 'early' | 'middle' | 'late' | 'off' | 'custom' = 'early';
 
         if (dayOfWeek === 0 || dayOfWeek === 6) { // 土日
           shift = empIndex % 3 === 0 ? 'off' : empIndex % 3 === 1 ? 'middle' : 'late';
@@ -137,21 +137,17 @@ export default function ShiftLaborIntegratedPage() {
           shift = ['early', 'middle', 'late'][empIndex % 3] as 'early' | 'middle' | 'late';
         }
 
-        const assignment: ShiftAssignment = {
+        const assignment = {
           employeeId: employee.id,
           date: dateStr,
-          shift,
-          ...(shift === 'custom' ? {
-            customStart: '10:30',
-            customEnd: '18:30'
-          } : {})
+          shift
         };
 
         // テスト用：白水さんを一部の日で変則シフトに設定
         if (employee.id === 'hakusui' && (day % 5 === 2 || day === 0)) { // day 0は今日、5日毎の3日目も
-          assignment.shift = 'custom';
-          assignment.customStart = '10:30';
-          assignment.customEnd = '18:30';
+          (assignment as any).shift = 'custom';
+          (assignment as any).customStart = '10:30';
+          (assignment as any).customEnd = '18:30';
           console.log(`Setting custom shift for ${employee.name} on day ${day} (${dateStr}):`, assignment);
         }
         

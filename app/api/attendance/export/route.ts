@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 function generateMockAttendanceData(startDate: string, endDate: string, department?: string | null) {
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const data = [];
+  const data: any[] = [];
 
   // モック従業員データ
   const employees = [

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { UserQualification, UserSkill, QualificationAlert } from '@/types/skills';
+import { UserQualification, UserSkill, QualificationAlert, QualificationStatus, QualificationCategory, SkillLevel } from '@/types/skills';
 
 export default function MyQualificationsPage() {
   const [qualifications, setQualifications] = useState<UserQualification[]>([]);

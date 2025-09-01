@@ -99,7 +99,7 @@ async function main() {
         employmentType: 'FULL_TIME',
         hireDate: new Date('2022-04-01'),
         hourlyRate: 1500,
-      },
+      } as any,
     });
   }
 

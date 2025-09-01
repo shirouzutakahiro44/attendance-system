@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { yearMonth: string } }
+  { params }: { params: Promise<{ yearMonth: string }> }
 ) {
   try {
-    const { yearMonth } = params;
+    const { yearMonth } = await params;
     
     // 年月のバリデーション
     const yearMonthRegex = /^\d{4}-\d{2}$/;
