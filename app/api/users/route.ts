@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
         },
       });
       
-      const departments = managedDepartments.map(dm => dm.department);
+      const departments = managedDepartments.map((dm: any) => dm.department);
       where.department = { in: departments };
     }
     
