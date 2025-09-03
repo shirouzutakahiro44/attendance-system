@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database files
+*.db
+*.sqlite
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Prisma migrations (local only)
+prisma/migrations/
+
+# Scripts not needed in production
+scripts/
+
+# Documentation
+docs/
+README.md
