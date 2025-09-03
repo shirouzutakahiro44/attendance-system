@@ -25,19 +25,21 @@ export function useAuthLogic() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check for stored auth data on mount
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    const demoMode = localStorage.getItem('demoMode');
-    
-    if (token && userData) {
-      try {
-        setUser(JSON.parse(userData));
-      } catch (e) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('sessionToken');
-        localStorage.removeItem('demoMode');
+    // Check for stored auth data on mount (client-side only)
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      const demoMode = localStorage.getItem('demoMode');
+      
+      if (token && userData) {
+        try {
+          setUser(JSON.parse(userData));
+        } catch (e) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          localStorage.removeItem('sessionToken');
+          localStorage.removeItem('demoMode');
+        }
       }
     }
     
