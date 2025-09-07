@@ -57,6 +57,11 @@ model User {
   timeRecords        TimeRecord[]
   attendanceDaily    AttendanceDaily[]
   auditLogs          AuditLog[]
+  profile            UserProfile?
+  pointHistory       PointHistory[]
+  achievements       UserAchievement[]
+  quests             UserQuest[]
+  shifts             Shift[]
 
   @@map("users")
 }
@@ -194,4 +199,162 @@ model AuditLog {
   @@index([userId])
   @@index([targetTable, targetId])
   @@map("audit_logs")
+}
+
+// ========== Gamification Models ==========
+
+enum AvatarType {
+  EGG        // 卵
+  CHICK      // ひよこ
+  CHICKEN    // 鶏
+  ROOSTER    // 雄鶏
+  PHOENIX    // 不死鳥
+}
+
+model UserProfile {
+  id                String      @id @default(uuid())
+  userId            String      @unique @map("user_id")
+  avatarUrl         String?     @map("avatar_url")
+  avatarType        AvatarType  @default(EGG) @map("avatar_type")
+  level             Int         @default(1)
+  totalPoints       Int         @default(0) @map("total_points")
+  currentPoints     Int         @default(0) @map("current_points")
+  stars             Int         @default(0)
+  currentTitle      String?     @map("current_title")
+  bio               String?
+  preferences       Json?       // User preferences and settings
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("user_profiles")
+}
+
+enum PointType {
+  EARLY_CLOCK_IN_10_6  // 10-6分前打刻
+  EARLY_CLOCK_IN_5_0   // 5-0分前打刻
+  LATE_CLOCK_IN        // 遅刻
+  QUEST_COMPLETE       // クエスト完了
+  STREAK_BONUS         // 連続ボーナス
+  ACCURACY_BONUS       // 正確率ボーナス
+  SPECIAL_REWARD       // 特別報酬
+}
+
+model PointHistory {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  points      Int
+  pointType   PointType @map("point_type")
+  description String?
+  referenceId String?   @map("reference_id") // Reference to timeRecord or quest
+  date        DateTime  @db.Date
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, date])
+  @@map("point_histories")
+}
+
+model Achievement {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String
+  iconUrl     String?  @map("icon_url")
+  category    String   // 出勤、連続、特別など
+  points      Int      @default(0)
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  achievementId String   @map("achievement_id")
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+  isEquipped    Boolean  @default(false) @map("is_equipped")
+
+  user        User        @relation(fields: [userId], references: [id])
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+enum QuestType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  PERSONAL
+}
+
+enum QuestStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CLAIMED
+}
+
+model Quest {
+  id           String      @id @default(uuid())
+  code         String      @unique
+  name         String
+  description  String
+  questType    QuestType   @map("quest_type")
+  targetValue  Int         @map("target_value")
+  rewardPoints Int         @map("reward_points")
+  startDate    DateTime    @map("start_date")
+  endDate      DateTime    @map("end_date")
+  conditions   Json        // Flexible conditions for quest completion
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  userQuests UserQuest[]
+
+  @@map("quests")
+}
+
+model UserQuest {
+  id           String      @id @default(uuid())
+  userId       String      @map("user_id")
+  questId      String      @map("quest_id")
+  status       QuestStatus @default(ACTIVE)
+  progress     Int         @default(0)
+  completedAt  DateTime?   @map("completed_at")
+  claimedAt    DateTime?   @map("claimed_at")
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id])
+  quest Quest @relation(fields: [questId], references: [id])
+
+  @@unique([userId, questId])
+  @@index([userId, status])
+  @@map("user_quests")
+}
+
+// ========== Shift Management ==========
+
+model Shift {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  date       DateTime @db.Date
+  startTime  DateTime @map("start_time")
+  endTime    DateTime @map("end_time")
+  breakMinutes Int    @default(60) @map("break_minutes")
+  location   String?
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+  @@index([date])
+  @@map("shifts")
 }

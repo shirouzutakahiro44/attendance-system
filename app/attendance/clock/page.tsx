@@ -1,6 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { 
+  calculateClockInPoints, 
+  savePointHistory, 
+  getTotalPoints,
+  generateMockShift 
+} from '@/lib/gamification';
+import { getCurrentUser, updatePoints, getShift } from '@/lib/profile-manager';
 
 interface TimeRecord {
   id: string;
@@ -16,6 +24,8 @@ export default function ClockPage() {
   const [todayRecords, setTodayRecords] = useState<TimeRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [pointMessage, setPointMessage] = useState('');
+  const [totalPoints, setTotalPoints] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -23,6 +33,9 @@ export default function ClockPage() {
     }, 1000);
 
     loadTodayRecords();
+    // ポイント合計を取得
+    const points = getTotalPoints('current-user');
+    setTotalPoints(points);
 
     return () => clearInterval(timer);
   }, []);
@@ -84,6 +97,41 @@ export default function ClockPage() {
       const updatedRecords = [...todayRecords, newRecord];
       setTodayRecords(updatedRecords);
       localStorage.setItem('todayRecords', JSON.stringify(updatedRecords));
+
+      // 出勤時はポイント計算
+      if (type === 'clock-in') {
+        const today = new Date().toISOString().split('T')[0];
+        const shift = getShift('current-user', today);
+        
+        if (shift) {
+          // シフト開始時刻を作成
+          const shiftDate = new Date();
+          const [hours, minutes] = shift.startTime.split(':').map(Number);
+          shiftDate.setHours(hours, minutes, 0, 0);
+          
+          const clockInTime = new Date();
+          const pointResult = calculateClockInPoints(clockInTime, shiftDate);
+          
+          // プロフィールのポイントを更新
+          updatePoints('current-user', pointResult.points);
+          
+          // ポイント履歴を保存
+          savePointHistory('current-user', pointResult.points, pointResult.type);
+          
+          // ポイントメッセージを表示
+          setPointMessage(pointResult.message);
+          
+          // 合計ポイントを更新
+          const newTotal = getTotalPoints('current-user');
+          setTotalPoints(newTotal);
+          
+          // 5秒後にポイントメッセージをクリア
+          setTimeout(() => setPointMessage(''), 5000);
+        } else {
+          setPointMessage('シフトが設定されていないためポイント計算できません');
+          setTimeout(() => setPointMessage(''), 3000);
+        }
+      }
 
       // 成功メッセージ
       const typeMessages = {
@@ -184,8 +232,21 @@ export default function ClockPage() {
       <div className="max-w-4xl mx-auto p-6">
         {/* ヘッダー */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#0D1B2A] mb-2">勤怠打刻</h1>
-          <p className="text-[#778DA9]">出勤・退勤の打刻を行ってください</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-[#0D1B2A] mb-2">勤怠打刻</h1>
+              <p className="text-[#778DA9]">出勤・退勤の打刻を行ってください</p>
+            </div>
+            <Link 
+              href="/profile"
+              className="bg-gradient-to-r from-[#F4A261] to-[#E8956A] text-white px-4 py-2 rounded-lg font-semibold hover:from-[#E8956A] hover:to-[#F4A261] transition-all duration-200 shadow-lg flex items-center gap-2"
+            >
+              🎮 マイプロフィール
+              <span className="text-sm bg-white/20 px-2 py-1 rounded">
+                {totalPoints} PT
+              </span>
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -229,6 +290,15 @@ export default function ClockPage() {
                     : 'bg-green-100 text-green-800'
                 }`}>
                   {message}
+                </div>
+              )}
+
+              {/* ポイントメッセージ表示 */}
+              {pointMessage && (
+                <div className="mt-4 p-4 rounded-lg text-center bg-gradient-to-r from-[#F4A261] to-[#E8956A] text-white">
+                  <div className="text-2xl mb-1">🎯</div>
+                  <div className="font-bold text-lg">{pointMessage}</div>
+                  <div className="text-sm mt-1">現在の合計: {totalPoints} ポイント</div>
                 </div>
               )}
             </div>
