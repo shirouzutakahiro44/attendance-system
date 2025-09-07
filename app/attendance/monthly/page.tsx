@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 import { generateMonthlyAttendance, getGamificationStatus, AttendanceRecord, MonthlyAttendanceSummary } from '@/lib/attendance-data';
 
 export default function MonthlyAttendancePage() {
@@ -69,6 +70,7 @@ export default function MonthlyAttendancePage() {
       <div className="max-w-7xl mx-auto p-6">
         {/* ヘッダー */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-[#778DA9]">
+          <BackButton className="mb-4" />
           <div className="flex justify-between items-start mb-4">
             <div>
               <h1 className="text-3xl font-bold text-[#0D1B2A] mb-2">月次勤怠表</h1>
@@ -105,7 +107,7 @@ export default function MonthlyAttendancePage() {
                 href="/profile"
                 className="bg-gradient-to-r from-accent to-accent/80 text-white px-4 py-2 rounded-lg hover:from-accent/80 hover:to-accent transition-all"
               >
-                🎮 プロフィール
+                プロフィール
               </Link>
               <input
                 type="month"
@@ -120,7 +122,7 @@ export default function MonthlyAttendancePage() {
         {/* 月次サマリー */}
         {!loading && attendanceData && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-[#778DA9]">
-            <h2 className="text-xl font-bold text-[#0D1B2A] mb-4">月次サマリー ✨</h2>
+            <h2 className="text-xl font-bold text-[#0D1B2A] mb-4">月次サマリー</h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">{attendanceData.summary.totalWorkDays}</div>
@@ -140,22 +142,22 @@ export default function MonthlyAttendancePage() {
               </div>
               <div className="text-center p-4 bg-gradient-to-br from-accent/10 to-accent/20 rounded-lg">
                 <div className="text-2xl font-bold text-accent">+{attendanceData.summary.totalPoints}</div>
-                <div className="text-sm text-accent font-medium">獲得ポイント 🎯</div>
+                <div className="text-sm text-accent font-medium">獲得ポイント</div>
               </div>
             </div>
             
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-state-success/10 p-3 rounded-lg text-center">
                 <div className="text-lg font-bold text-state-success">{attendanceData.summary.perfectDays}日</div>
-                <div className="text-sm text-state-success">🎯 完璧な出勤</div>
+                <div className="text-sm text-state-success">完璧な出勤</div>
               </div>
               <div className="bg-accent/10 p-3 rounded-lg text-center">
                 <div className="text-lg font-bold text-accent">{attendanceData.summary.consecutiveDays}日</div>
-                <div className="text-sm text-accent">🔥 連続記録</div>
+                <div className="text-sm text-accent">連続記録</div>
               </div>
               <div className="bg-state-warning/10 p-3 rounded-lg text-center">
                 <div className="text-lg font-bold text-state-warning">{attendanceData.summary.lateCount}日</div>
-                <div className="text-sm text-state-warning">⚠️ 遅刻</div>
+                <div className="text-sm text-state-warning">遅刻</div>
               </div>
             </div>
           </div>

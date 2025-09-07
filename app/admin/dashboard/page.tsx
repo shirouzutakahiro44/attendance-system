@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 interface DashboardStats {
   totalEmployees: number;
@@ -247,6 +248,7 @@ export default function AdminDashboardPage() {
       <div className="max-w-7xl mx-auto p-6">
         {/* ヘッダー */}
         <div className="mb-8">
+          <BackButton className="mb-4" />
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center">
             <div>
               <h1 className="text-3xl font-bold text-[#0D1B2A] mb-2">管理ダッシュボード</h1>

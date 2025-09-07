@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 import { ShiftPattern, ShiftAssignment, ShiftStatus } from '@/types/shift-labor';
 import EmployeeManager from '@/lib/employees';
 
@@ -226,6 +227,7 @@ export default function ShiftManagementPage() {
       <div className="max-w-7xl mx-auto p-6">
         {/* ヘッダー */}
         <div className="mb-8">
+          <BackButton className="mb-4" />
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-[#0D1B2A] mb-2">シフト管理</h1>

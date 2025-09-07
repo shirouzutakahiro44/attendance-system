@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 import { UserQualification, UserSkill, QualificationAlert, QualificationStatus, QualificationCategory, SkillLevel } from '@/types/skills';
 
 export default function MyQualificationsPage() {
@@ -275,6 +276,7 @@ export default function MyQualificationsPage() {
       <div className="max-w-7xl mx-auto p-6">
         {/* ヘッダー */}
         <div className="mb-8">
+          <BackButton href="/profile" label="プロフィールに戻る" className="mb-4" />
           <h1 className="text-3xl font-bold text-[#0D1B2A] mb-2">保有資格・スキル</h1>
           <p className="text-[#778DA9]">あなたの資格とスキルレベルを確認できます</p>
         </div>

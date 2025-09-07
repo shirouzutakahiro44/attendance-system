@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
 import { getCurrentUser, calculateStats, updatePoints } from '@/lib/profile-manager'
+import { UserQualification, UserSkill, QualificationStatus, SkillLevel } from '@/types/skills'
 
 // アバタータイプの定義
 const AVATAR_TYPES = {
@@ -25,6 +27,9 @@ const TITLES = [
 export default function ProfilePage() {
   const [profile, setProfile] = useState(getCurrentUser())
   const [stats, setStats] = useState(calculateStats(profile.employeeId))
+  const [qualifications, setQualifications] = useState<UserQualification[]>([])
+  const [skills, setSkills] = useState<UserSkill[]>([])
+  const [qualificationsLoading, setQualificationsLoading] = useState(true)
 
   useEffect(() => {
     // プロフィールとステータスを再読み込み
@@ -32,17 +37,190 @@ export default function ProfilePage() {
     const currentStats = calculateStats(currentProfile.employeeId)
     setProfile(currentProfile)
     setStats(currentStats)
+
+    // 資格・スキル情報を読み込み
+    loadQualificationsAndSkills()
   }, [])
+
+  const loadQualificationsAndSkills = async () => {
+    try {
+      // Phase 1: モックデータを生成
+      const mockQualifications: UserQualification[] = [
+        {
+          id: 'uq_001',
+          userId: 'current-user',
+          qualificationId: 'q_forklift',
+          qualification: {
+            id: 'q_forklift',
+            name: 'フォークリフト運転技能講習',
+            category: 'equipment',
+            description: 'フォークリフト運転に必要な技能講習修了証',
+            isRequired: true,
+            validityPeriod: 3,
+            renewalRequired: true,
+            regulatoryBody: '厚生労働省',
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z'
+          },
+          certificateNumber: 'FL-2024-001234',
+          obtainedDate: '2024-03-15',
+          expiryDate: '2027-03-14',
+          issuingAuthority: '〇〇労働基準監督署',
+          status: 'active',
+          createdAt: '2024-03-15T00:00:00Z',
+          updatedAt: '2024-03-15T00:00:00Z'
+        },
+        {
+          id: 'uq_002',
+          userId: 'current-user',
+          qualificationId: 'q_welding',
+          qualification: {
+            id: 'q_welding',
+            name: 'アーク溶接特別教育',
+            category: 'technical',
+            description: 'アーク溶接作業に従事するための特別教育',
+            isRequired: true,
+            validityPeriod: 0,
+            renewalRequired: false,
+            regulatoryBody: '厚生労働省',
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z'
+          },
+          certificateNumber: 'AW-2023-005678',
+          obtainedDate: '2023-11-20',
+          issuingAuthority: '〇〇技能講習センター',
+          status: 'active',
+          createdAt: '2023-11-20T00:00:00Z',
+          updatedAt: '2023-11-20T00:00:00Z'
+        }
+      ]
+
+      const mockSkills: UserSkill[] = [
+        {
+          id: 'us_001',
+          userId: 'current-user',
+          skillId: 'skill_press',
+          skill: {
+            id: 'skill_press',
+            name: 'プレス操作',
+            category: 'press_operation',
+            description: 'プレス機械の操作技能',
+            relatedQualifications: [],
+            assessmentCriteria: [],
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z'
+          },
+          currentLevel: 4,
+          assessedAt: '2024-07-15T00:00:00Z',
+          assessedBy: '班長 田中',
+          practiceHours: 1250,
+          notes: '非常に熟練している。新人指導も可能。',
+          nextAssessmentDate: '2025-01-15',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-07-15T00:00:00Z'
+        },
+        {
+          id: 'us_002',
+          userId: 'current-user',
+          skillId: 'skill_welding',
+          skill: {
+            id: 'skill_welding',
+            name: '溶接技術',
+            category: 'welding',
+            description: 'アーク溶接・ガス溶接技術',
+            relatedQualifications: ['q_welding'],
+            assessmentCriteria: [],
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z'
+          },
+          currentLevel: 3,
+          assessedAt: '2024-06-20T00:00:00Z',
+          assessedBy: '主任 佐藤',
+          practiceHours: 890,
+          notes: '基本技術は習得済み。難易度の高い作業では指導が必要。',
+          nextAssessmentDate: '2024-12-20',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-06-20T00:00:00Z'
+        }
+      ]
+
+      setQualifications(mockQualifications)
+      setSkills(mockSkills)
+      setQualificationsLoading(false)
+    } catch (error) {
+      console.error('資格情報の取得に失敗しました:', error)
+      setQualificationsLoading(false)
+    }
+  }
+
+  // シンプルでかわいいアイコンの定義（画像に合わせて）
+  const achievementIcons = {
+    '初出勤': '👤',      // シンプルな人
+    '1週間皆勤': '💼',   // ブリーフケース（画像と同じ）
+    '早起き鳥': '⭐',    // 星（画像と同じ）
+    '月間MVP': '💖',     // ハート（画像と同じピンクハート）
+    '年間皆勤': '✨'      // キラキラ
+  }
 
   const avatar = AVATAR_TYPES[profile.avatarType as keyof typeof AVATAR_TYPES]
   const nextLevelPoints = (profile.level + 1) * 200
   const levelProgress = Math.max(0, Math.min(100, (profile.currentPoints / nextLevelPoints) * 100))
+
+  // ヘルパー関数
+  const getStatusColor = (status: QualificationStatus) => {
+    const colors = {
+      active: 'bg-green-100 text-green-800',
+      expired: 'bg-red-100 text-red-800',
+      expiring_soon: 'bg-yellow-100 text-yellow-800',
+      suspended: 'bg-gray-100 text-gray-800',
+      pending_renewal: 'bg-blue-100 text-blue-800'
+    }
+    return colors[status]
+  }
+
+  const getStatusLabel = (status: QualificationStatus) => {
+    const labels = {
+      active: '有効',
+      expired: '期限切れ',
+      expiring_soon: '期限間近',
+      suspended: '停止中',
+      pending_renewal: '更新手続き中'
+    }
+    return labels[status]
+  }
+
+  const getSkillLevelLabel = (level: SkillLevel) => {
+    const labels = {
+      1: '初心者',
+      2: '初級',
+      3: '中級',
+      4: '上級',
+      5: 'エキスパート'
+    }
+    return labels[level]
+  }
+
+  const getSkillLevelColor = (level: SkillLevel) => {
+    const colors = {
+      1: 'bg-red-100 text-red-800',
+      2: 'bg-orange-100 text-orange-800',
+      3: 'bg-yellow-100 text-yellow-800',
+      4: 'bg-blue-100 text-blue-800',
+      5: 'bg-purple-100 text-purple-800'
+    }
+    return colors[level]
+  }
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('ja-JP')
+  }
 
   return (
     <div className="min-h-screen bg-base-bg p-4">
       <div className="max-w-6xl mx-auto">
         {/* ヘッダー */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <BackButton className="mb-4" />
           <h1 className="text-3xl font-bold text-text-heading mb-2">
             マイプロフィール
           </h1>
@@ -142,14 +320,36 @@ export default function ProfilePage() {
                 {stats.achievements.map((achievement) => (
                   <div
                     key={achievement.id}
-                    className={`text-center p-4 rounded-lg transition-all ${
+                    className={`text-center p-6 rounded-2xl transition-all ${
                       achievement.unlocked
-                        ? 'bg-accent/10 hover:bg-accent/20'
-                        : 'bg-gray-100 opacity-50'
+                        ? 'bg-white border-2 border-pink-200 hover:border-pink-300 shadow-lg hover:shadow-xl'
+                        : 'bg-gray-50 border border-gray-200 opacity-60'
                     }`}
                   >
-                    <div className="text-4xl mb-2">{achievement.icon}</div>
-                    <p className="text-xs text-text-body">{achievement.name}</p>
+                    <div className="flex justify-center mb-2">
+                      {achievement.unlocked ? (
+                        <img 
+                          src="/badge-icon.png" 
+                          alt={achievement.name}
+                          className="w-16 h-16 object-contain"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 flex items-center justify-center text-3xl text-gray-400">
+                          🔒
+                        </div>
+                      )}
+                    </div>
+                    <p className={`text-xs ${
+                      achievement.unlocked ? 'text-accent font-medium' : 'text-gray-500'
+                    }`}>
+                      {achievement.name}
+                    </p>
+                    {achievement.unlocked && (
+                      <div className="flex justify-center mt-2 space-x-1">
+                        <span className="text-xs">💖</span>
+                        <span className="text-xs">⭐</span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -222,6 +422,114 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* 保有資格・スキル */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-text-heading">
+                  保有資格・スキル
+                </h3>
+                <Link
+                  href="/qualifications/my"
+                  className="text-primary-button hover:text-accent text-sm font-medium transition-colors"
+                >
+                  詳細を見る →
+                </Link>
+              </div>
+
+              {qualificationsLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="text-lg text-text-sub">読み込み中...</div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* 保有資格 */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-text-body mb-3">
+                      保有資格 ({qualifications.length}件)
+                    </h4>
+                    {qualifications.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {qualifications.slice(0, 4).map((qual) => (
+                          <div key={qual.id} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <h5 className="font-semibold text-text-heading text-sm">
+                                {qual.qualification?.name}
+                              </h5>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(qual.status)}`}>
+                                {getStatusLabel(qual.status)}
+                              </span>
+                            </div>
+                            <div className="text-xs text-text-sub space-y-1">
+                              <div>取得日: {formatDate(qual.obtainedDate)}</div>
+                              {qual.expiryDate && (
+                                <div>有効期限: {formatDate(qual.expiryDate)}</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-text-sub text-sm">資格情報がありません</p>
+                    )}
+                  </div>
+
+                  {/* スキルレベル */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-text-body mb-3">
+                      スキルレベル ({skills.length}件)
+                    </h4>
+                    {skills.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {skills.slice(0, 4).map((skill) => (
+                          <div key={skill.id} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <h5 className="font-semibold text-text-heading text-sm">
+                                {skill.skill?.name}
+                              </h5>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSkillLevelColor(skill.currentLevel)}`}>
+                                Lv.{skill.currentLevel} {getSkillLevelLabel(skill.currentLevel)}
+                              </span>
+                            </div>
+                            <div className="text-xs text-text-sub space-y-1">
+                              <div>実践時間: {skill.practiceHours}時間</div>
+                              <div>最終評価: {formatDate(skill.assessedAt)}</div>
+                            </div>
+                            {/* スキルレベルバー */}
+                            <div className="mt-2">
+                              <div className="w-full bg-gray-200 rounded-full h-1">
+                                <div 
+                                  className="bg-primary-button h-1 rounded-full transition-all duration-300"
+                                  style={{ width: `${(skill.currentLevel / 5) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-text-sub text-sm">スキル情報がありません</p>
+                    )}
+                  </div>
+
+                  {/* サマリー */}
+                  <div className="bg-accent/10 rounded-lg p-4">
+                    <div className="grid grid-cols-2 gap-4 text-center">
+                      <div>
+                        <div className="text-2xl font-bold text-accent">{qualifications.filter(q => q.status === 'active').length}</div>
+                        <div className="text-sm text-accent">有効な資格</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-accent">
+                          {skills.length > 0 ? (skills.reduce((sum, s) => sum + s.currentLevel, 0) / skills.length).toFixed(1) : '0.0'}
+                        </div>
+                        <div className="text-sm text-accent">平均スキルレベル</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

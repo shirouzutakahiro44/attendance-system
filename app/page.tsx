@@ -41,13 +41,13 @@ export default function Home() {
               href="/profile" 
               className="block bg-gradient-to-r from-[#F4A261] to-[#E8956A] text-white px-6 py-4 rounded-lg font-semibold text-center hover:from-[#E8956A] hover:to-[#F4A261] transition-all duration-200 shadow-lg"
             >
-              🎮 マイプロフィール
+              マイプロフィール
             </Link>
             <Link 
               href="/attendance/clock" 
               className="block bg-[#F4A261] text-white px-6 py-4 rounded-lg font-semibold text-center hover:bg-[#E8956A] transition-colors duration-200"
             >
-              ⏰ 勤怠打刻
+              勤怠打刻
             </Link>
             <Link 
               href="/attendance/daily" 
@@ -65,7 +65,7 @@ export default function Home() {
               href="/shift-labor-integrated" 
               className="block bg-[#F4A261] text-white px-6 py-4 rounded-lg font-semibold text-center hover:bg-[#E8956A] transition-colors duration-200"
             >
-              📊 シフト・レイバー統合管理
+              シフト・レイバー統合管理
             </Link>
             <Link 
               href="/qualifications/my" 

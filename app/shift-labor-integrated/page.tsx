@@ -723,7 +723,7 @@ export default function ShiftLaborIntegratedPage() {
                   : 'bg-white text-[#415A77] hover:bg-gray-50'
               } rounded-l-lg`}
             >
-              📅 シフト管理
+              シフト管理
             </button>
             <button
               onClick={() => setActiveTab('labor')}
@@ -733,7 +733,7 @@ export default function ShiftLaborIntegratedPage() {
                   : 'bg-white text-[#415A77] hover:bg-gray-50'
               }`}
             >
-              📋 レイバー管理
+              レイバー管理
             </button>
             <button
               onClick={() => setActiveTab('employees')}
@@ -743,7 +743,7 @@ export default function ShiftLaborIntegratedPage() {
                   : 'bg-white text-[#415A77] hover:bg-gray-50'
               } rounded-r-lg`}
             >
-              👥 従業員管理
+              従業員管理
             </button>
           </div>
         </div>

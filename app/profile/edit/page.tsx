@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import BackButton from '@/components/BackButton'
 import { getCurrentUser, updateProfile, updateAvatar, getShift, saveShift } from '@/lib/profile-manager'
 
 export default function ProfileEditPage() {
@@ -113,19 +114,12 @@ export default function ProfileEditPage() {
       <div className="max-w-4xl mx-auto">
         {/* ヘッダー */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-text-heading">
-                プロフィール編集
-              </h1>
-              <p className="text-text-sub">プロフィール情報とシフトを設定</p>
-            </div>
-            <Link
-              href="/profile"
-              className="text-primary-button hover:text-accent"
-            >
-              ← 戻る
-            </Link>
+          <BackButton href="/profile" label="プロフィールに戻る" className="mb-4" />
+          <div>
+            <h1 className="text-3xl font-bold text-text-heading">
+              プロフィール編集
+            </h1>
+            <p className="text-text-sub">プロフィール情報とシフトを設定</p>
           </div>
         </div>
 

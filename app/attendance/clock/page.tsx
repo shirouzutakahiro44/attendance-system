@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 import { 
   calculateClockInPoints, 
   savePointHistory, 
@@ -232,6 +233,7 @@ export default function ClockPage() {
       <div className="max-w-4xl mx-auto p-6">
         {/* ヘッダー */}
         <div className="mb-8">
+          <BackButton className="mb-4" />
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold text-[#0D1B2A] mb-2">勤怠打刻</h1>
@@ -241,7 +243,7 @@ export default function ClockPage() {
               href="/profile"
               className="bg-gradient-to-r from-[#F4A261] to-[#E8956A] text-white px-4 py-2 rounded-lg font-semibold hover:from-[#E8956A] hover:to-[#F4A261] transition-all duration-200 shadow-lg flex items-center gap-2"
             >
-              🎮 マイプロフィール
+              マイプロフィール
               <span className="text-sm bg-white/20 px-2 py-1 rounded">
                 {totalPoints} PT
               </span>
@@ -296,7 +298,6 @@ export default function ClockPage() {
               {/* ポイントメッセージ表示 */}
               {pointMessage && (
                 <div className="mt-4 p-4 rounded-lg text-center bg-gradient-to-r from-[#F4A261] to-[#E8956A] text-white">
-                  <div className="text-2xl mb-1">🎯</div>
                   <div className="font-bold text-lg">{pointMessage}</div>
                   <div className="text-sm mt-1">現在の合計: {totalPoints} ポイント</div>
                 </div>
